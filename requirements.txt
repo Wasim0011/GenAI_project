@@ -1,0 +1,17 @@
+streamlit>=1.35.0
+langgraph>=0.2.14
+langchain>=0.2.14
+langchain-google-genai>=1.0.7
+google-generativeai>=0.7.2
+# Primary PDF engine — pre-installed on most platforms
+pypdfium2>=4.30.0
+# Alternative PDF engine (recommended for production on Linux/Mac/Windows x86-64)
+# Uncomment the line below and comment out pypdfium2 if PyMuPDF is available:
+# pymupdf>=1.24.5
+fpdf2>=2.7.9
+python-dotenv>=1.0.1
+pydantic>=2.7.4
+pandas>=2.2.2
+Pillow>=10.3.0
+reportlab>=4.2.0
+pytest>=8.0.0

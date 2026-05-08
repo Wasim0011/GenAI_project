@@ -1,0 +1,36 @@
+{
+  "rules": [
+    {
+      "id": "PII_CHECK",
+      "name": "PII / Personal Information Detection",
+      "description": "Flags pages containing personally identifiable information such as email addresses, phone numbers, SSNs, passport numbers, dates of birth, full names combined with identifiers, credit card numbers, or home addresses.",
+      "enabled": true,
+      "severity": "HIGH",
+      "examples": "john.doe@example.com, +1-800-555-1234, SSN: 123-45-6789"
+    },
+    {
+      "id": "CONFIDENTIAL_CHECK",
+      "name": "Confidential / Sensitive Business Information",
+      "description": "Flags pages containing confidential business information including trade secrets, internal pricing, unreleased product details, M&A activity, proprietary algorithms, API keys, passwords, or internal strategy documents.",
+      "enabled": true,
+      "severity": "HIGH",
+      "examples": "API_KEY=abc123, Project Codename: Phoenix (confidential), Q3 acquisition target"
+    },
+    {
+      "id": "ENCODING_CHECK",
+      "name": "Encoding Consistency (UTF-8 / English Only)",
+      "description": "Flags pages where text encoding is inconsistent with UTF-8, or where non-English language content is detected. Only English text is supported.",
+      "enabled": true,
+      "severity": "MEDIUM",
+      "examples": "Garbled characters (â€™), non-Latin scripts, mojibake text"
+    },
+    {
+      "id": "ABUSIVE_CONTENT_CHECK",
+      "name": "Abusive / Unlawful Content",
+      "description": "Flags pages containing abusive language, hate speech, threats, harassment, discriminatory language, or any content that may be unlawful including instructions for illegal activities.",
+      "enabled": true,
+      "severity": "CRITICAL",
+      "examples": "Slurs, threats, hate speech, instructions for illegal activity"
+    }
+  ]
+}
