@@ -1,15 +1,16 @@
 """
-Utility functions for loading, saving, and resetting compliance rules.
+Utility functions for loading, saving, resetting, and creating compliance rules.
 """
 
 import json
-import os
+import re
+import uuid
 from typing import List, Dict, Any
 from pathlib import Path
 
 RULES_FILE = Path("compliance_rules.json")
 
-DEFAULT_RULES = [
+DEFAULT_RULES: List[Dict[str, Any]] = [
     {
         "id": "PII_CHECK",
         "name": "PII / Personal Information Detection",
@@ -17,6 +18,7 @@ DEFAULT_RULES = [
         "enabled": True,
         "severity": "HIGH",
         "examples": "john.doe@example.com, +1-800-555-1234, SSN: 123-45-6789",
+        "custom": False,
     },
     {
         "id": "CONFIDENTIAL_CHECK",
@@ -25,6 +27,7 @@ DEFAULT_RULES = [
         "enabled": True,
         "severity": "HIGH",
         "examples": "API_KEY=abc123, Project Codename: Phoenix (confidential), Q3 acquisition target",
+        "custom": False,
     },
     {
         "id": "ENCODING_CHECK",
@@ -33,6 +36,7 @@ DEFAULT_RULES = [
         "enabled": True,
         "severity": "MEDIUM",
         "examples": "Garbled characters (â€™), non-Latin scripts, mojibake text",
+        "custom": False,
     },
     {
         "id": "ABUSIVE_CONTENT_CHECK",
@@ -41,28 +45,48 @@ DEFAULT_RULES = [
         "enabled": True,
         "severity": "CRITICAL",
         "examples": "Slurs, threats, hate speech, instructions for illegal activity",
+        "custom": False,
     },
 ]
 
 
 def load_rules() -> List[Dict[str, Any]]:
-    """Load rules from JSON file, or return defaults if file is missing/corrupt."""
+    """Load rules from JSON file, or return defaults if missing/corrupt."""
     try:
         if RULES_FILE.exists():
-            with open(RULES_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data.get("rules", DEFAULT_RULES)
+            data = json.loads(RULES_FILE.read_text(encoding="utf-8"))
+            rules = data.get("rules", DEFAULT_RULES)
+            for r in rules:
+                r.setdefault("custom", True)
+            return rules
     except (json.JSONDecodeError, KeyError):
         pass
-    return DEFAULT_RULES
+    return [dict(r) for r in DEFAULT_RULES]
 
 
 def save_rules(rules: List[Dict[str, Any]]) -> None:
-    """Persist updated rules to JSON file."""
-    with open(RULES_FILE, "w", encoding="utf-8") as f:
-        json.dump({"rules": rules}, f, indent=2, ensure_ascii=False)
+    """Persist rules to JSON file."""
+    RULES_FILE.write_text(
+        json.dumps({"rules": rules}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 
 def reset_rules() -> None:
-    """Reset rules file to defaults."""
-    save_rules(DEFAULT_RULES)
+    """Reset to built-in defaults."""
+    save_rules([dict(r) for r in DEFAULT_RULES])
+
+
+def create_rule(name: str, description: str, severity: str, examples: str = "") -> Dict[str, Any]:
+    """Create a new custom rule dict with a unique generated ID."""
+    slug = re.sub(r"[^A-Z0-9]", "_", name.upper())[:24].strip("_")
+    uid  = uuid.uuid4().hex[:6].upper()
+    return {
+        "id":          f"CUSTOM_{slug}_{uid}",
+        "name":        name.strip(),
+        "description": description.strip(),
+        "enabled":     True,
+        "severity":    severity,
+        "examples":    examples.strip(),
+        "custom":      True,
+    }
